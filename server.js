@@ -5,101 +5,105 @@ var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema;
 
-var itemSchema = new Schema ({
-	item: String
+var itemSchema = new Schema({
+    item: String
 });
 
 var Item = mongoose.model('Item', itemSchema);
 
 var items = [];
 
-app.use( bodyParser.json() );       // to support JSON-encoded bodies
-app.use( bodyParser.urlencoded() ); // to support URL-encoded bodies
+app.use(bodyParser.json());       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded()); // to support URL-encoded bodies
 
 app.use(bodyParser.urlencoded({
-	extended: true
+    extended: true
 }));
 
 // gets all items, ie http GET localhost:5000
-app.get('/', function(req, res){
-	items.forEach(function (item, i) {
-		res.write(i + '. ' + item + '\n');
-	});
-	res.end();
+app.get('/', function (req, res) {
+    items.forEach(function (item, i) {
+        res.write(i + '. ' + item + '\n');
+    });
+    res.end();
 });
 
 // gets a single item, ie the second item http GET localhost:5000/1
-app.get('/:index', function(req, res){
-	if (isNaN(req.params.index)) {
-		res.send('Item id not valid');
-		res.statusCode = 400;
-	}
-	else if (items[req.params.index]) {
-		res.send("getting "+req.params.index);
-	}
-	else {
-res.send("item not found");
-}
+app.get('/:index', function (req, res) {
+    if (isNaN(req.params.index)) {
+        res.send('Item id not valid');
+        res.statusCode = 400;
+    } else if (items[req.params.index]) {
+        res.send("getting " + req.params.index);
+    } else {
+        res.send("item not found");
+    }
 });
 
 // adds and item, ie http --form POST localhost:5000 item='oranges'
-app.post('/', function(req, res){
-	if (!req.param('item')) {
-		res.send('Item not valid');
-		res.statusCode = 400;
-	} else {
-		items.push(req.param('item'));
-		res.send("adding " + req.param('item'));
-	}
+app.post('/', function (req, res) {
+    if (!req.param('item')) {
+        res.send('Item not valid');
+        res.statusCode = 400;
+    } else {
+        items.push(req.param('item'));
+        res.send("adding " + req.param('item'));
+    }
 });
 
 // updates an item, ie http --form PUT localhost:5000/1 item='chocolate'
-app.put('/:index', function(req, res){
-	if (isNaN(req.params.index)) {
-		res.send('Item id not valid');
-		res.statusCode = 400;
-	}
-	else if (items[req.params.index] && req.param('item')) {
-		items[req.params.index] = req.param('item');
-		res.send("putting "+req.params.index);
-	}
-	else {
-		res.send("item not found");
-	}
+app.put('/:index', function (req, res) {
+    if (isNaN(req.params.index)) {
+        res.send('Item id not valid');
+        res.statusCode = 400;
+    } else if (items[req.params.index] && req.param('item')) {
+        items[req.params.index] = req.param('item');
+        res.send("putting " + req.params.index);
+    } else {
+        res.send("item not found");
+    }
 });
 
 // deletes an item, ie http DELETE localhost:5000/1
-app.delete('/:index', function(req, res){
-	if (isNaN(req.params.index)) {
-		res.send('Item id not valid');
-		res.statusCode = 400;
-	}
-	else if (items[req.params.index]) {
-		items.splice(req.params.index, 1);
-		res.end('Item deleted successfully');
-	}
-	else {
-		res.send("item not found");
-	}
+app.delete('/:index', function (req, res) {
+    if (isNaN(req.params.index)) {
+        res.send('Item id not valid');
+        res.statusCode = 400;
+    } else if (items[req.params.index]) {
+        items.splice(req.params.index, 1);
+        res.end('Item deleted successfully');
+    } else {
+        res.send("item not found");
+    }
 });
 
-app.configure('devlopment', function () {
-	app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-	mongoose.connect('mongodb://localhost/Users/mouli/webFrameworks/mDB');
-});
-app.configure('production', function() {
-	app.use(express.errorHandler());
-	mongoose.connect('mongodb://foo:blah@ds031271.mongolab.com:31271/shopping_app');
-});
+app.set('Shopping App', 'Uses mongoose');
+
+var env = process.env.NODE_ENV || 'development';
+if ('development' === env) {
+    mongoose.connect('mongodb://localhost/Users/mouli/webFrameworks/mDB');
+    app.use(function (err, req, res) {
+        // error handling middleware
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    });
+} else {
+    mongoose.connect('mongodb://foo:blah@ds031271.mongolab.com:31271/shopping_app');
+    app.use(function (err, req, res) {
+        res.status(500).send('Sorry we are fixing this issue!');
+    });
+}
+
+
 var db = mongoose.connection;
 db.on('error', function callback() {
-	console.error('connection error');
+    console.error('connection error');
 });
 db.once('open', function callback() {
-	console.log('connection success');
+    console.log('connection success');
 });
 
 var port = process.env.PORT || 5000;
 app.listen(port, function () {
-	console.log('listening on '+port);
+    console.log('listening on ' + port);
 });
