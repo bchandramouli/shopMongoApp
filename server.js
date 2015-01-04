@@ -9,6 +9,8 @@ var itemSchema = new Schema ({
 	item: String
 });
 
+var Item = mongoose.model('Item', itemSchema);
+
 var items = [];
 
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
@@ -81,7 +83,14 @@ app.delete('/:index', function(req, res){
 	}
 });
 
-mongoose.connect('mongodb://localhost/Users/mouli/webFrameworks/mDB');
+app.configure('devlopment', function () {
+	app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+	mongoose.connect('mongodb://localhost/Users/mouli/webFrameworks/mDB');
+});
+app.configure('production', function() {
+	app.use(express.errorHandler());
+	mongoose.connect('mongodb://foo:blah@ds031271.mongolab.com:31271/shopping_app');
+});
 var db = mongoose.connection;
 db.on('error', function callback() {
 	console.error('connection error');
