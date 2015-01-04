@@ -4,14 +4,6 @@ var app = express();
 var mongoose = require('mongoose');
 var shopList = require('./list.js');
 
-var Schema = mongoose.Schema;
-
-var itemSchema = new Schema({
-    item: String
-});
-
-var Item = mongoose.model('Item', itemSchema);
-
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded()); // to support URL-encoded bodies
 
@@ -38,7 +30,8 @@ app.set('Shopping App', 'Uses mongoose');
 
 var env = process.env.NODE_ENV || 'development';
 if ('development' === env) {
-    mongoose.connect('mongodb://localhost/Users/mouli/webFrameworks/mDB');
+    //mongoose.connect('mongodb://localhost/Users/mouli/webFrameworks/mDB/mydb');
+    mongoose.connect('mongodb://localhost/mydb');
     app.use(function (err, req, res) {
         // error handling middleware
         console.error(err.stack);
