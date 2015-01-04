@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var mongoose = require('mongoose');
+var shopList = require('./list.js');
 
 var Schema = mongoose.Schema;
 
@@ -11,8 +12,6 @@ var itemSchema = new Schema({
 
 var Item = mongoose.model('Item', itemSchema);
 
-var items = [];
-
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded()); // to support URL-encoded bodies
 
@@ -21,61 +20,19 @@ app.use(bodyParser.urlencoded({
 }));
 
 // gets all items, ie http GET localhost:5000
-app.get('/', function (req, res) {
-    items.forEach(function (item, i) {
-        res.write(i + '. ' + item + '\n');
-    });
-    res.end();
-});
+app.get('/', shopList.listAll);
 
 // gets a single item, ie the second item http GET localhost:5000/1
-app.get('/:index', function (req, res) {
-    if (isNaN(req.params.index)) {
-        res.send('Item id not valid');
-        res.statusCode = 400;
-    } else if (items[req.params.index]) {
-        res.send("getting " + req.params.index);
-    } else {
-        res.send("item not found");
-    }
-});
+app.get('/:index', shopList.listOne);
 
 // adds and item, ie http --form POST localhost:5000 item='oranges'
-app.post('/', function (req, res) {
-    if (!req.param('item')) {
-        res.send('Item not valid');
-        res.statusCode = 400;
-    } else {
-        items.push(req.param('item'));
-        res.send("adding " + req.param('item'));
-    }
-});
+app.post('/', shopList.create);
 
 // updates an item, ie http --form PUT localhost:5000/1 item='chocolate'
-app.put('/:index', function (req, res) {
-    if (isNaN(req.params.index)) {
-        res.send('Item id not valid');
-        res.statusCode = 400;
-    } else if (items[req.params.index] && req.param('item')) {
-        items[req.params.index] = req.param('item');
-        res.send("putting " + req.params.index);
-    } else {
-        res.send("item not found");
-    }
-});
+app.put('/:index', shopList.update);
 
 // deletes an item, ie http DELETE localhost:5000/1
-app.delete('/:index', function (req, res) {
-    if (isNaN(req.params.index)) {
-        res.send('Item id not valid');
-        res.statusCode = 400;
-    } else if (items[req.params.index]) {
-        items.splice(req.params.index, 1);
-        res.end('Item deleted successfully');
-    } else {
-        res.send("item not found");
-    }
-});
+app.delete('/:index', shopList.delete);
 
 app.set('Shopping App', 'Uses mongoose');
 
