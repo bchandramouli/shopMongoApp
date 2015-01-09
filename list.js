@@ -1,4 +1,3 @@
-/* testing for vamsi
 /* Instead of the array use the DB... 
  *     var items = [];
  */
